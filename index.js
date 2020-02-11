@@ -20,12 +20,3 @@ app.get('/items', async (req, res, next) => {
 app.listen(3030, () => {
   console.info('Running on port 3030');
 });
-
-console.info(process.env.GMAIL_USER);
-console.info(process.env.GMAIL_PW);
-console.info(process.env.NODEMAILER_SENDER);
-console.info(process.env.NODEMAILER_RECIPIENT.split(','));
-console.info(process.env.TGTG_USER_ID);
-console.info(process.env.TGTG_USER_ORIGIN_LONG);
-console.info(process.env.TGTG_USER_ORIGIN_LAT);
-console.info(process.env.TGTG_AUTH_TOKEN);
