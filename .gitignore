@@ -1,3 +1,4 @@
 node_modules/
 lastItems.json
 .env
+recipients.js
