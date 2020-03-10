@@ -3,7 +3,8 @@ var recipients = {
     recipients: [
       {
         name: 'Name',
-        email: 'e@mail.com'
+        email: 'e@mail.com',
+        trigger: 'available | always'
       }
     ],
   }
