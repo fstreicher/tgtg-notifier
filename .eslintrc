@@ -14,12 +14,15 @@
   },
   "rules": {
     "indent": [
-      "error",
+      "warn",
       2
     ],
     "quotes": [
-      "error",
-      "single"
+      "warn",
+      "single",
+      {
+        "allowTemplateLiterals": true
+      }
     ],
     "semi": [
       "error",
