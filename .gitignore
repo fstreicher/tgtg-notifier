@@ -2,3 +2,4 @@ node_modules/
 lastItems/*
 .env
 recipients.js
+reqFailed.txt
