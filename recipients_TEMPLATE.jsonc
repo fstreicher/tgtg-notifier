@@ -1,0 +1,11 @@
+[
+  {
+    "name": "firstName lastName",
+    "trigger": "always | available",
+    "alertzyKey": "key",
+    "email": "email@domain.com",
+    "locations": [
+      "item_id", // comments
+    ]
+  }
+]

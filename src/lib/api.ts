@@ -1,10 +1,11 @@
-const axios = require('axios');
+import axios, { AxiosPromise, AxiosRequestConfig } from 'axios';
+import { Item } from '../types/item';
 
 
-function getFavorites() {
-  const options = {
+export function getFavorites(): AxiosPromise<{ items: Array<Item> }> {
+  const options: AxiosRequestConfig = {
     baseURL: 'https://apptoogoodtogo.com',
-    url: '/api/item/v6/',
+    url: '/api/item/v7/',
     method: 'POST',
     headers: {
       'Authorization': process.env.TGTG_AUTH_TOKEN,
@@ -14,8 +15,8 @@ function getFavorites() {
     data: {
       user_id: process.env.TGTG_USER_ID,
       origin: {
-        latitude: process.env.TGTG_USER_ORIGIN.split(',')[0],
-        longitude: process.env.TGTG_USER_ORIGIN.split(',')[1]
+        latitude: process.env.TGTG_USER_ORIGIN?.split(',')[0],
+        longitude: process.env.TGTG_USER_ORIGIN?.split(',')[1]
       },
       radius: 0,
       favorites_only: true
@@ -24,5 +25,3 @@ function getFavorites() {
 
   return axios(options);
 }
-
-module.exports.getFavorites = getFavorites;

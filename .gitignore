@@ -1,5 +1,6 @@
 node_modules/
 lastItems/*
 .env
-recipients.js
+recipients.jsonc
 reqFailed.txt
+dist/
