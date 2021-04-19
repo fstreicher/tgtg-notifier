@@ -4,14 +4,21 @@
     "es6": true,
     "node": true
   },
-  "extends": "eslint:recommended",
+  "extends": [
+    "plugin:@typescript-eslint/recommended"
+  ],
   "globals": {
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
   },
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": 2018
+    "ecmaVersion": 2018,
+    "sourceType": "module"
   },
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "rules": {
     "indent": [
       "warn",
@@ -24,21 +31,7 @@
         "allowTemplateLiterals": true
       }
     ],
-    "semi": [
-      "error",
-      "always"
-    ],
-    "no-shadow": "error",
-    "no-unused-vars": [
-      "error",
-      {
-        "argsIgnorePattern": "next"
-      }
-    ],
-    "eol-last": [
-      "error",
-      "always"
-    ],
-    "no-trailing-spaces": "warn"
+    "no-trailing-spaces": "warn",
+    "eqeqeq": "warn"
   }
 }
