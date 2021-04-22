@@ -10,17 +10,16 @@ const tokenLifetime = 4 * 3600 * 1000;
 export async function checkCredentials(): Promise<Credentials> {
   let credentials = null;
   if (!fs.existsSync('./credentials.json')) {
-    console.info('no creds found, logging in');
+    console.info('No credentials found, logging in...');
     return await login();
   } else {
     credentials = JSON.parse(fs.readFileSync('./credentials.json', { encoding: 'utf-8' }));
-    console.info('credentials found:', credentials);
     if (Date.now() - credentials.timestamp > tokenLifetime) {
-      console.info('credentials invalid, refreshing');
+      console.info('Credentials invalid, refreshing token...');
       return await refresh(credentials);
     }
     else {
-      console.info('credentials valid');
+      console.info('Credentials found & valid');
       return credentials;
     }
   }
@@ -37,7 +36,7 @@ function login(): Promise<Credentials> {
         refresh_token: res.data.refresh_token,
         timestamp: Date.now()
       }
-      console.info('logged in', credentials);
+      console.info('Logged in');
       fs.writeFileSync('./credentials.json', JSON.stringify(credentials, null, 2));
       return Promise.resolve(credentials);
     })

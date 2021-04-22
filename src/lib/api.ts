@@ -29,7 +29,6 @@ export class ApiWrapper {
       url: '/api/auth/v1/token/refresh/',
       method: 'POST',
       headers: {
-        'Authorization': process.env.TGTG_AUTH_TOKEN,
         'Content-Type': 'application/json',
         'User-Agent': userAgent
       },
