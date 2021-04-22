@@ -4,3 +4,4 @@ lastItems/*
 recipients.jsonc
 reqFailed.txt
 dist/
+credentials.json
