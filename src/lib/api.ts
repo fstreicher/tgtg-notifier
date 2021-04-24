@@ -13,7 +13,7 @@ const HEADERS = {
   'User-Agent': USER_AGENT
 };
 
-export class ApiWrapper {
+export abstract class ApiWrapper {
   public static login(email: string, password: string): AxiosPromise<LoginResponse> {
     const options: AxiosRequestConfig = {
       baseURL: BASE_URL,
