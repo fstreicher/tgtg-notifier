@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig } from 'axios';
+
 import { AlertzyPriority } from '../types';
 
 export function alertzy(key: string, title: string, message: string, prio: AlertzyPriority = AlertzyPriority.NORMAL): void {

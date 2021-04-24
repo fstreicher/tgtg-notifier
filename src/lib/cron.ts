@@ -1,4 +1,5 @@
 import { schedule } from 'node-cron';
+
 import { scrapeFavorites } from './scraper';
 
 export function scheduleCronJobs(): void {

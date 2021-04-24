@@ -1,10 +1,11 @@
 import * as fs from 'fs';
 import * as jsonc from 'jsonc-parser';
-import { ApiWrapper } from './api';
-import { transporter } from './nodemailer';
+
 import { alertzy } from './alertzy';
-import { AlertzyPriority, Item, ItemHistory, NotificationItems, Recipient, TgtgError } from '../types';
+import { ApiWrapper } from './api';
 import { checkCredentials } from './login';
+import { transporter } from './nodemailer';
+import { AlertzyPriority, Item, ItemHistory, NotificationItems, Recipient, TgtgError } from '../types';
 
 
 export async function scrapeFavorites(): Promise<void> {

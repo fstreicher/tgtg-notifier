@@ -1,3 +1,7 @@
+export interface ItemResponse {
+  items: Array<Item>;
+}
+
 export interface Item {
   item: NestedItem;
   store: Store;
