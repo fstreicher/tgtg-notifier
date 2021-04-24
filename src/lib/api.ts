@@ -1,11 +1,11 @@
 import axios, { AxiosPromise, AxiosRequestConfig } from 'axios';
 import { Item, LoginResponse, RefreshResponse } from '../types';
 
-const USER_AGENT = 'TooGoodToGo/20.2.0 (740) (iPhone/iPhone X (GSM); iOS 13.3.1; Scale/3.00)';
+const USER_AGENT = 'TooGoodToGo/21.3.0 (935) (iPhone/iPhone X (GSM); iOS 14.4.2; Scale/3.00)';
 const BASE_URL = 'https://apptoogoodtogo.com';
 const PATH = {
-  LOGIN: '/api/auth/v1/loginByEmail/',
-  REFRESH: '/api/auth/v1/token/refresh/',
+  LOGIN: '/api/auth/v2/loginByEmail/',
+  REFRESH: '/api/auth/v2/token/refresh/',
   ITEM: '/api/item/v7/'
 };
 const HEADERS = {
