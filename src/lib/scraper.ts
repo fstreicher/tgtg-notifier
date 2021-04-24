@@ -11,13 +11,10 @@ export async function scrapeFavorites(): Promise<void> {
 
   const credentials = await checkCredentials();
 
-  if (
-    credentials &&
-    process.env.TGTG_USER_ID &&
-    process.env.TGTG_USER_ORIGIN
-  ) {
+  if (credentials && process.env.TGTG_USER_ORIGIN) {
+
     ApiWrapper.getFavorites(
-      process.env.TGTG_USER_ID,
+      credentials.user_id,
       credentials.access_token,
       process.env.TGTG_USER_ORIGIN.split(',')[0],
       process.env.TGTG_USER_ORIGIN.split(',')[0]
