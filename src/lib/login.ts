@@ -32,6 +32,7 @@ function login(): Promise<Credentials> {
   return ApiWrapper.login(email, password)
     .then(res => {
       credentials = {
+        user_id: res.data.startup_data.user.user_id,
         access_token: res.data.access_token,
         refresh_token: res.data.refresh_token,
         timestamp: Date.now()
@@ -52,6 +53,7 @@ function refresh(credentials: Credentials): Promise<Credentials> {
   return ApiWrapper.refreshToken(credentials.refresh_token)
     .then(res => {
       credentials = {
+        ...credentials,
         access_token: res.data.access_token,
         refresh_token: res.data.refresh_token,
         timestamp: Date.now()

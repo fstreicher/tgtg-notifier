@@ -1,73 +1,63 @@
 import axios, { AxiosPromise, AxiosRequestConfig } from 'axios';
-import { Item, LoginResponse, RefreshResponse } from '../types';
 
-const userAgent = 'TooGoodToGo/20.2.0 (740) (iPhone/iPhone X (GSM); iOS 13.3.1; Scale/3.00)';
+import { ItemResponse, LoginResponse, RefreshResponse } from '../types';
 
-export class ApiWrapper {
-  public static login(email: string, password: string): AxiosPromise<LoginResponse> {
+const BASE_URL = 'https://apptoogoodtogo.com';
+const PATH = {
+  LOGIN: '/api/auth/v2/loginByEmail/',
+  REFRESH: '/api/auth/v2/token/refresh/',
+  ITEM: '/api/item/v7/'
+};
+const HEADERS = {
+  'Content-Type': 'application/json',
+  'User-Agent': 'TooGoodToGo/21.3.0 (935) (iPhone/iPhone X (GSM); iOS 14.4.2; Scale/3.00)'
+};
+
+export abstract class ApiWrapper {
+
+  private static makeRequest<T>(path: string, data: Record<string, any>, headers?: Record<string, string>): AxiosPromise<T> {
     const options: AxiosRequestConfig = {
-      baseURL: 'https://apptoogoodtogo.com',
-      url: '/api/auth/v1/loginByEmail/',
+      baseURL: BASE_URL,
+      url: path,
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': userAgent
+        ...HEADERS,
+        ...headers
       },
-      data: {
-        device_type: 'IOS',
-        email: email,
-        password: password
-      }
+      data: data
     };
 
     return axios(options);
+  }
+
+  public static login(email: string, password: string): AxiosPromise<LoginResponse> {
+    const data = {
+      device_type: 'IOS',
+      email: email,
+      password: password
+    }
+    return ApiWrapper.makeRequest(PATH.LOGIN, data);
   }
 
   public static refreshToken(token: string): AxiosPromise<RefreshResponse> {
-    const options: AxiosRequestConfig = {
-      baseURL: 'https://apptoogoodtogo.com',
-      url: '/api/auth/v1/token/refresh/',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': userAgent
-      },
-      data: {
-        refresh_token: token
-      }
-    };
-
-    return axios(options);
+    return ApiWrapper.makeRequest(PATH.REFRESH, { refresh_token: token });
   }
 
 
-  public static getFavorites(
-    userId: string,
-    authToken: string,
-    lat: string,
-    long: string
-  ): AxiosPromise<{ items: Array<Item> }> {
-    const options: AxiosRequestConfig = {
-      baseURL: 'https://apptoogoodtogo.com',
-      url: '/api/item/v7/',
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${authToken}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'TooGoodToGo/20.2.0 (740) (iPhone/iPhone X (GSM); iOS 13.3.1; Scale/3.00)'
-      },
-      data: {
-        user_id: userId,
-        origin: {
-          latitude: lat,
-          longitude: long
-        },
-        radius: 0,
-        favorites_only: true
-      }
+  public static getFavorites(userId: string, authToken: string, lat: string, long: string): AxiosPromise<ItemResponse> {
+    const headers = {
+      'Authorization': `Bearer ${authToken}`
     };
+    const data = {
+      user_id: userId,
+      origin: {
+        latitude: lat,
+        longitude: long
+      },
+      radius: 0,
+      favorites_only: true
+    }
 
-    return axios(options);
-
+    return ApiWrapper.makeRequest(PATH.ITEM, data, headers);
   }
 }
