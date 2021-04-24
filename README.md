@@ -46,8 +46,8 @@ TGTG_USER_ORIGIN=
 ```
 - `name` is the name used for sending out emails  
 - `trigger` defines, when a user should be notified.
-  - always notifies whenever there is a change in available items (eg: `3 -> 2 -> 1`, but only for `>0` )
-  - available only notifies users, once the stock changes from `0` to `>0`
+  - `always` notifies whenever there is a change in available items (eg: `3 -> 2 -> 1`, but only for `>0` )
+  - `available` only notifies users, once the stock changes from `0` to `>0`
 - `alertzyKey` is the users alertzyKey to receive push notifications
 - `email` is the users email adress to receive notification emails
 - `locations` is an array of item ids (which you will need to find out yourself 😉)
@@ -55,7 +55,7 @@ TGTG_USER_ORIGIN=
 You can supply either the email info (name, adress) or the alertzy key. If both are present, the alertzy key will take precendence over email.
 
 ### 3. Adjust your execution intervals
-- In [src/cron.js](src/cron.js) you can tweak, when the tool should check for available items
+- In [src/lib/cron.js](src/lib/cron.ts) you can tweak, when the tool should check for available items
 
 ### 4. Start the service
 - install and compile  
