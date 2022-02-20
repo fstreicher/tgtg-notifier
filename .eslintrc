@@ -1,37 +1,59 @@
-{
-  "env": {
-    "commonjs": true,
-    "es6": true,
-    "node": true
+module.exports = {
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: 'tsconfig.json',
+    sourceType: 'module',
   },
-  "extends": [
-    "plugin:@typescript-eslint/recommended"
+  plugins: [
+    '@typescript-eslint/eslint-plugin'
   ],
-  "globals": {
-    "Atomics": "readonly",
-    "SharedArrayBuffer": "readonly"
-  },
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion": 2018,
-    "sourceType": "module"
-  },
-  "plugins": [
-    "@typescript-eslint"
+  extends: [
+    'plugin:@typescript-eslint/recommended',
   ],
-  "rules": {
-    "indent": [
-      "warn",
-      2
+  root: true,
+  env: {
+    node: true,
+  },
+  rules: {
+    'function-paren-newline': [
+      'warn',
+      'consistent'
     ],
-    "quotes": [
-      "warn",
-      "single",
+    'object-shorthand': 'warn',
+    '@typescript-eslint/array-type': [
+      'warn',
       {
-        "allowTemplateLiterals": true
+        default: 'generic'
       }
     ],
-    "no-trailing-spaces": "warn",
-    "eqeqeq": "warn"
-  }
-}
+    '@typescript-eslint/default-param-last': 'error',
+    '@typescript-eslint/explicit-function-return-type': 'error',
+    '@typescript-eslint/explicit-member-accessibility': [
+      'error',
+      {
+        accessibility: 'explicit',
+        overrides: {
+          constructors: 'no-public'
+        }
+      }
+    ],
+    '@typescript-eslint/no-empty-interface': 'warn',
+    '@typescript-eslint/no-explicit-any': 'warn',
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        varsIgnorePattern: "^_"
+      }
+    ],
+    '@typescript-eslint/no-shadow': 'error',
+    '@typescript-eslint/prefer-optional-chain': 'warn'
+  },
+  overrides: [
+    {
+      files: ['*.controller.ts'],
+      rules: {
+        '@typescript-eslint/explicit-function-return-type': 'off',
+      }
+    }
+  ]
+};
