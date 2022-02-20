@@ -1,7 +1,10 @@
-node_modules/
-lastItems/*
 .env
+client_secret.json
+credentials.json
+current-favorites.json
+dist/
+lastItems/*
+node_modules/
 recipients.jsonc
 reqFailed.txt
-dist/
-credentials.json
+token.json

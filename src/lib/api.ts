@@ -1,16 +1,20 @@
 import axios, { AxiosPromise, AxiosRequestConfig } from 'axios';
 
-import { ItemResponse, LoginResponse, RefreshResponse } from '../types';
+import { ItemResponse, LoginPayload, LoginRequestResponse, LoginResponse, RefreshResponse } from '../types';
+import { getLoginPin } from './gmail';
 
+const MAX_POLLING_TRIES = 24; // 24 * POLLING_WAIT_TIME = 2 minutes
+const POLLING_WAIT_TIME = 5000;
 const BASE_URL = 'https://apptoogoodtogo.com';
 const PATH = {
-  LOGIN: '/api/auth/v2/loginByEmail/',
-  REFRESH: '/api/auth/v2/token/refresh/',
+  LOGIN: '/api/auth/v3/authByEmail/',
+  PIN: '/api/auth/v3/auhtByRequestPin/',
+  REFRESH: '/api/auth/v3/token/refresh/',
   ITEM: '/api/item/v7/'
 };
 const HEADERS = {
   'Content-Type': 'application/json',
-  'User-Agent': 'TooGoodToGo/21.3.0 (935) (iPhone/iPhone X (GSM); iOS 14.4.2; Scale/3.00)'
+  'User-Agent': 'TooGoodToGo/22.1.1 (1203) (iPhone/iPhone X (GSM); iOS 15.1; Scale/3.00)'
 };
 
 export abstract class ApiWrapper {
@@ -30,14 +34,40 @@ export abstract class ApiWrapper {
     return axios(options);
   }
 
-  public static login(email: string, password: string): AxiosPromise<LoginResponse> {
-    const data = {
+
+  public static async login(email: string): Promise<LoginResponse> {
+    const data: LoginPayload = {
       device_type: 'IOS',
-      email: email,
-      password: password
+      email: email
+    };
+    const retryCounter = 0;
+    let pin = null;
+
+    const loginResponse: LoginRequestResponse = (await ApiWrapper.makeRequest<LoginRequestResponse>(PATH.LOGIN, data)).data;
+
+    while (retryCounter < MAX_POLLING_TRIES && !pin) {
+      setTimeout(
+        () => {
+          getLoginPin()
+            .then(res => pin = res)
+            .catch(() => console.debug(`failed to get code at try ${retryCounter}`));
+        },
+        POLLING_WAIT_TIME
+      )
     }
-    return ApiWrapper.makeRequest(PATH.LOGIN, data);
+
+    if (!pin) {
+      return Promise.reject('Error during login');
+    }
+
+    data.request_polling_id = loginResponse.polling_id;
+    data.request_pin = pin;
+
+    return ApiWrapper.makeRequest<LoginResponse>(PATH.PIN, data)
+      .then(res => res)
+      .catch(err => err);
   }
+
 
   public static refreshToken(token: string): AxiosPromise<RefreshResponse> {
     return ApiWrapper.makeRequest(PATH.REFRESH, { refresh_token: token });

@@ -1,3 +1,8 @@
+export interface LoginRequestResponse {
+  polling_id: string,
+  state: string;
+}
+
 export interface LoginResponse {
   access_token: string;
   refresh_token: string;
