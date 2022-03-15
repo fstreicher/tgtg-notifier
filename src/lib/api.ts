@@ -1,4 +1,4 @@
-import axios, { AxiosPromise, AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosPromise, AxiosRequestConfig } from 'axios';
 
 import { ItemResponse, LoginPayload, LoginRequestResponse, LoginResponse, RefreshResponse } from '../types';
 import { getLoginPin } from './gmail';
@@ -42,8 +42,16 @@ export abstract class ApiWrapper {
     };
     let retryCounter = 0;
     let pin = null;
+    let loginResponse: LoginRequestResponse;
 
-    const loginResponse: LoginRequestResponse = (await ApiWrapper.makeRequest<LoginRequestResponse>(PATH.LOGIN, data)).data;
+    try {
+      loginResponse = (await ApiWrapper.makeRequest<LoginRequestResponse>(PATH.LOGIN, data)).data;
+    } catch (err) {
+      if ((err as AxiosError).response?.status === 429) {
+        console.error((err as AxiosError).message);
+      }
+      return Promise.reject(err);
+    }
 
     while (retryCounter < MAX_POLLING_TRIES && !pin) {
       retryCounter++;
