@@ -14,7 +14,7 @@ interface Secret {
   javascript_origins: Array<string>;
 }
 
-const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
+const SCOPES = ['https://www.googleapis.com/auth/gmail.modify'];
 const TOKEN_PATH = 'token.json';
 const TGTG_LABEL = 'Label_6250840274030950651';
 
@@ -36,12 +36,14 @@ function authorize(credentials: { web: Secret }): Promise<OAuth2Client> {
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, 'http://localhost');
 
   // Check if we have previously stored a token.
-  const token = fs.existsSync(TOKEN_PATH) ? fs.readFileSync(TOKEN_PATH) : null;
+  const tokenRaw = fs.existsSync(TOKEN_PATH) ? fs.readFileSync(TOKEN_PATH) : null;
 
-  if (!token) {
+  if (!tokenRaw) {
     return getNewToken(oAuth2Client);
   }
-  oAuth2Client.setCredentials(JSON.parse(token.toString()) as Credentials);
+
+  const token = JSON.parse(tokenRaw.toString()) as Credentials;
+  oAuth2Client.setCredentials(token);
   return Promise.resolve(oAuth2Client);
 }
 
@@ -68,7 +70,7 @@ async function getNewToken(oAuth2Client: OAuth2Client): Promise<OAuth2Client> {
   const token = await oAuth2Client.getToken(codeFromInput);
   oAuth2Client.setCredentials(token.tokens);
   // Store the token to disk for later program executions
-  fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+  fs.writeFile(TOKEN_PATH, JSON.stringify(token.tokens), (err) => {
     if (err) return console.error(err);
     console.log('Token stored to', TOKEN_PATH);
   });
@@ -87,23 +89,34 @@ async function getPinFromMail(auth: OAuth2Client): Promise<string | void> {
   return gmail.users.messages.list({ maxResults: 1, userId: 'me', labelIds: [TGTG_LABEL], q: 'is:unread' })
     .then(res => {
       const message = res?.data.messages?.[0];
-      if (!message) { return; }
+      if (!message) {
+        console.debug('no email found [1]');
+        return;
+      }
 
       return gmail.users.messages.get({ id: message.id!, userId: 'me' })
         .then(res => {
+          const numberRegex = /\d{6}/g;
+          const data = res?.data;
+          let pin = data.snippet?.match(numberRegex)?.pop();
+          if (pin) {
+            gmail.users.messages.trash({ id: message.id!, userId: 'me' });
+            console.debug(``)
+            return pin;
+          }
+
           const mailBody = res?.data.payload?.body?.data;
           if (mailBody) {
             console.debug('found email, getting pin');
             const mailHTML = Buffer.from(mailBody, 'base64').toString();
             const pinRegex = />(\d{6})</g;
-            const numberRegex = /\d{6}/g;
             const pin = mailHTML.match(pinRegex)?.pop();
             gmail.users.messages.trash({ id: message.id!, userId: 'me' });
             return pin!.match(numberRegex)?.pop();
           }
+          console.debug('no email found [2]');
         })
         .catch(err => console.error(err));
-
 
     })
     .catch(err => console.error(err));
