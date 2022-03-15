@@ -20,9 +20,10 @@ const TGTG_LABEL = 'Label_6250840274030950651';
 
 export async function getLoginPin(): Promise<string | void> {
   // Load client secrets from a local file.
-  const secret = fs.readFileSync('client_secret.json');
+  const secretRaw = fs.readFileSync('client_secret.json');
+  const secret = JSON.parse(secretRaw.toString()) as unknown as { web: Secret };
   // Authorize a client with credentials, then call the Gmail API.
-  const oAuthClient = await authorize(JSON.parse(secret.toString()) as unknown as { web: Secret });
+  const oAuthClient = await authorize(secret);
   return getPinFromMail(oAuthClient);
 }
 
@@ -38,7 +39,7 @@ function authorize(credentials: { web: Secret }): Promise<OAuth2Client> {
   const token = fs.existsSync(TOKEN_PATH) ? fs.readFileSync(TOKEN_PATH) : null;
 
   if (!token) {
-    return getNewTokenPromise(oAuth2Client);
+    return getNewToken(oAuth2Client);
   }
   oAuth2Client.setCredentials(JSON.parse(token.toString()) as Credentials);
   return Promise.resolve(oAuth2Client);
@@ -48,33 +49,7 @@ function authorize(credentials: { web: Secret }): Promise<OAuth2Client> {
  * Get and store new token after prompting for user authorization
  * @param oAuth2Client The OAuth2 client to get token for.
  */
-function getNewToken(oAuth2Client: OAuth2Client, callback: (auth: OAuth2Client) => void) {
-  const authUrl = oAuth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: SCOPES,
-  });
-  console.log('Authorize this app by visiting this url:', authUrl);
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-  rl.question('Enter the code from that page here: ', (code) => {
-    rl.close();
-    oAuth2Client.getToken(
-      code,
-      (err, token) => {
-        if (err) return console.error('Error retrieving access token', err);
-        oAuth2Client.setCredentials(token!);
-        // Store the token to disk for later program executions
-        fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-          if (err) return console.error(err);
-          console.log('Token stored to', TOKEN_PATH);
-        });
-        callback(oAuth2Client);
-      });
-  });
-}
-async function getNewTokenPromise(oAuth2Client: OAuth2Client): Promise<OAuth2Client> {
+async function getNewToken(oAuth2Client: OAuth2Client): Promise<OAuth2Client> {
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: SCOPES,
@@ -118,10 +93,12 @@ async function getPinFromMail(auth: OAuth2Client): Promise<string | void> {
         .then(res => {
           const mailBody = res?.data.payload?.body?.data;
           if (mailBody) {
+            console.debug('found email, getting pin');
             const mailHTML = Buffer.from(mailBody, 'base64').toString();
             const pinRegex = />(\d{6})</g;
             const numberRegex = /\d{6}/g;
             const pin = mailHTML.match(pinRegex)?.pop();
+            gmail.users.messages.trash({ id: message.id!, userId: 'me' });
             return pin!.match(numberRegex)?.pop();
           }
         })

@@ -28,7 +28,6 @@ export async function checkCredentials(): Promise<Credentials> {
 function login(): Promise<Credentials> {
   let credentials: Credentials;
   const email = process.env.TGTG_EMAIL || '';
-  const password = process.env.TGTG_PASSWORD || '';
   return ApiWrapper.login(email)
     .then(res => {
       credentials = {

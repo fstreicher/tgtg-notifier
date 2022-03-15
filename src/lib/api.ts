@@ -40,20 +40,25 @@ export abstract class ApiWrapper {
       device_type: 'IOS',
       email: email
     };
-    const retryCounter = 0;
+    let retryCounter = 0;
     let pin = null;
 
     const loginResponse: LoginRequestResponse = (await ApiWrapper.makeRequest<LoginRequestResponse>(PATH.LOGIN, data)).data;
 
     while (retryCounter < MAX_POLLING_TRIES && !pin) {
-      setTimeout(
+      retryCounter++;
+      console.debug('waiting for confirmation email')
+      await new Promise((resolve) => setTimeout(
         () => {
           getLoginPin()
-            .then(res => pin = res)
+            .then(res => {
+              pin = res;
+              resolve;
+            })
             .catch(() => console.debug(`failed to get code at try ${retryCounter}`));
         },
         POLLING_WAIT_TIME
-      )
+      ))
     }
 
     if (!pin) {
