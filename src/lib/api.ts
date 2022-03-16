@@ -8,7 +8,7 @@ const POLLING_WAIT_TIME = 5000;
 const BASE_URL = 'https://apptoogoodtogo.com';
 const PATH = {
   LOGIN: '/api/auth/v3/authByEmail/',
-  PIN: '/api/auth/v3/auhtByRequestPin/',
+  PIN: '/api/auth/v3/authByRequestPin/',
   REFRESH: '/api/auth/v3/token/refresh/',
   ITEM: '/api/item/v7/'
 };
@@ -77,7 +77,7 @@ export abstract class ApiWrapper {
     data.request_pin = pin;
 
     return ApiWrapper.makeRequest<LoginResponse>(PATH.PIN, data)
-      .then(res => res)
+      .then(res => res.data)
       .catch(err => err);
   }
 
