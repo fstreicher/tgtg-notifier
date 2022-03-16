@@ -3,6 +3,8 @@ import { schedule } from 'node-cron';
 import { scrapeFavorites } from './scraper';
 
 export function scheduleCronJobs(): void {
+  console.info('Initializing cron jobs')
+
   // run every 5 minutes, except from 1800-1900
   schedule('*/5 0-17,19-23 * * *', () => {
     const date = new Date();

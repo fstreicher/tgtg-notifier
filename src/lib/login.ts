@@ -28,13 +28,12 @@ export async function checkCredentials(): Promise<Credentials> {
 function login(): Promise<Credentials> {
   let credentials: Credentials;
   const email = process.env.TGTG_EMAIL || '';
-  const password = process.env.TGTG_PASSWORD || '';
-  return ApiWrapper.login(email, password)
+  return ApiWrapper.login(email)
     .then(res => {
       credentials = {
-        user_id: res.data.startup_data.user.user_id,
-        access_token: res.data.access_token,
-        refresh_token: res.data.refresh_token,
+        user_id: res.startup_data.user.user_id,
+        access_token: res.access_token,
+        refresh_token: res.refresh_token,
         timestamp: Date.now()
       }
       console.info('Logged in');

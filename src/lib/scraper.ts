@@ -23,6 +23,7 @@ export async function scrapeFavorites(): Promise<void> {
     )
       .then(res => {
         const items: Array<Item> = res.data.items;
+        fs.writeFileSync('./current-favorites.json', JSON.stringify(items, null, 2));
         let lastItems: ItemHistory = {};
         if (!fs.existsSync('./lastItems/favorites.json')) {
           items.forEach((item: Item) => lastItems[item.item.item_id] = item.items_available);
