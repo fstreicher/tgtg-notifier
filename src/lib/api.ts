@@ -41,14 +41,14 @@ export abstract class ApiWrapper {
       email: email
     };
     let retryCounter = 0;
-    let pin = null;
+    let pin: string = '';
     let loginResponse: LoginRequestResponse;
 
     try {
       loginResponse = (await ApiWrapper.makeRequest<LoginRequestResponse>(PATH.LOGIN, data)).data;
     } catch (err) {
       if ((err as AxiosError).response?.status === 429) {
-        console.error((err as AxiosError).message);
+        return Promise.reject((err as AxiosError).message);
       }
       return Promise.reject(err);
     }
@@ -56,17 +56,17 @@ export abstract class ApiWrapper {
     while (retryCounter < MAX_POLLING_TRIES && !pin) {
       retryCounter++;
       console.debug('waiting for confirmation email')
-      await new Promise((resolve) => setTimeout(
+      pin = await new Promise((resolve) => setTimeout(
         () => {
           getLoginPin()
             .then(res => {
-              pin = res;
-              resolve;
+              console.debug(`found pin: ${res}`);
+              resolve(res);
             })
             .catch(() => console.debug(`failed to get code at try ${retryCounter}`));
         },
         POLLING_WAIT_TIME
-      ))
+      ));
     }
 
     if (!pin) {

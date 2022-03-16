@@ -18,7 +18,7 @@ const SCOPES = ['https://www.googleapis.com/auth/gmail.modify'];
 const TOKEN_PATH = 'token.json';
 const TGTG_LABEL = 'Label_6250840274030950651';
 
-export async function getLoginPin(): Promise<string | void> {
+export async function getLoginPin(): Promise<string> {
   // Load client secrets from a local file.
   const secretRaw = fs.readFileSync('client_secret.json');
   const secret = JSON.parse(secretRaw.toString()) as unknown as { web: Secret };
@@ -83,7 +83,7 @@ async function getNewToken(oAuth2Client: OAuth2Client): Promise<OAuth2Client> {
  *
  * @param auth An authorized OAuth2 client.
  */
-async function getPinFromMail(auth: OAuth2Client): Promise<string | void> {
+async function getPinFromMail(auth: OAuth2Client): Promise<string> {
   const gmail = google.gmail({ version: 'v1', auth });
 
   return gmail.users.messages.list({ maxResults: 1, userId: 'me', labelIds: [TGTG_LABEL], q: 'is:unread' })
@@ -91,7 +91,7 @@ async function getPinFromMail(auth: OAuth2Client): Promise<string | void> {
       const message = res?.data.messages?.[0];
       if (!message) {
         console.debug('no email found [1]');
-        return;
+        return Promise.reject();
       }
 
       return gmail.users.messages.get({ id: message.id!, userId: 'me' })
@@ -101,7 +101,6 @@ async function getPinFromMail(auth: OAuth2Client): Promise<string | void> {
           let pin = data.snippet?.match(numberRegex)?.pop();
           if (pin) {
             gmail.users.messages.trash({ id: message.id!, userId: 'me' });
-            console.debug(``)
             return pin;
           }
 
@@ -112,12 +111,15 @@ async function getPinFromMail(auth: OAuth2Client): Promise<string | void> {
             const pinRegex = />(\d{6})</g;
             const pin = mailHTML.match(pinRegex)?.pop();
             gmail.users.messages.trash({ id: message.id!, userId: 'me' });
-            return pin!.match(numberRegex)?.pop();
+            return pin?.match(numberRegex)?.pop() ?? '';
           }
           console.debug('no email found [2]');
-        })
-        .catch(err => console.error(err));
+          return '';
+        });
 
     })
-    .catch(err => console.error(err));
+    .catch(err => {
+      console.error(err);
+      return '';
+    });
 }
