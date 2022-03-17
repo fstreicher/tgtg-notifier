@@ -2,8 +2,8 @@
   {
     "name": "firstName lastName",
     "trigger": "always | available",
-    "alertzyKey": "key",
-    "email": "email@domain.com",
+    "notifyBy": "email | alertzy | pushover",
+    "notifyKey": "email@domain.com | userKey",
     "locations": [
       "item_id", // comments
     ]

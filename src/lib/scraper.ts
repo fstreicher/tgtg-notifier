@@ -1,11 +1,13 @@
 import * as fs from 'fs';
 import * as jsonc from 'jsonc-parser';
 
+import { AlertzyPriority, Item, ItemHistory, NotificationItems, NOTIFY, Recipient, TgtgError } from '../types';
 import { alertzy } from './alertzy';
 import { ApiWrapper } from './api';
 import { checkCredentials } from './login';
 import { transporter } from './nodemailer';
-import { AlertzyPriority, Item, ItemHistory, NotificationItems, Recipient, TgtgError } from '../types';
+import { pushover } from './pushover';
+
 
 
 export async function scrapeFavorites(): Promise<void> {
@@ -61,23 +63,31 @@ export async function scrapeFavorites(): Promise<void> {
 
           });
           if (notificationItems.notify) {
-            if (target.alertzyKey) {
-              console.info(`    \u27f9  Sending push notification about ${notificationItems.items.length} item(s) to ${target.name}.`);
-              alertzy(
-                target.alertzyKey,
-                'TooGoodToGo',
-                notificationItems.items.map(item => `${item.locationName}: ${item.numAvailable}`).join('\n')
-              );
-            }
-
-            if (target.email) {
-              console.info(`    \u27f9  Sending mail with notification about ${notificationItems.items.length} item(s) to ${target.name}.`);
-              transporter.sendMail({
-                from: `"TGTG Notifier" <${process.env.NODEMAILER_SENDER}>`,
-                to: `"${target.name}" <${target.email}>`,
-                subject: `Your favorite locations have items available!`,
-                html: notificationItems.items.map(item => `${item.locationName}: <b>${item.numAvailable}</b>`).join('<br>')
-              });
+            console.info(`    \u27f9  Sending notification about ${notificationItems.items.length} item(s) to ${target.name} via ${target.notifyBy}`);
+            switch (target.notifyBy) {
+              case NOTIFY.EMAIL:
+                transporter.sendMail({
+                  from: `"TGTG Notifier" <${process.env.NODEMAILER_SENDER}>`,
+                  to: `"${target.name}" <${target.notifyKey}>`,
+                  subject: `Your favorite locations have items available!`,
+                  html: notificationItems.items.map(item => `${item.locationName}: <b>${item.numAvailable}</b>`).join('<br>')
+                });
+                break;
+              case NOTIFY.ALTERTZY:
+                alertzy(
+                  target.notifyKey,
+                  'TooGoodToGo',
+                  notificationItems.items.map(item => `${item.locationName}: ${item.numAvailable}`).join('\n')
+                );
+                break;
+              case NOTIFY.PUSHOVER:
+                pushover(
+                  process.env.PUSHOVER_KEY,
+                  target.notifyKey,
+                  'TooGoodToGo',
+                  notificationItems.items.map(item => `${item.locationName}: ${item.numAvailable}`).join('\n')
+                );
+                break;
             }
           }
         });
