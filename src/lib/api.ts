@@ -111,9 +111,14 @@ export abstract class ApiWrapper {
   }
 
   private static getHeaders(): TgtgHeaders {
+    const userAgent = process.env.HEADER_UA;
+    if (!userAgent) {
+      throw new Error('no user agent set in env variables');
+    }
+
     const headers: TgtgHeaders = {
       'Content-Type': 'application/json',
-      'User-Agent': process.env.HEADER_UA
+      'User-Agent': userAgent
     };
     if (this.cookie) {
       headers['Cookie'] = this.cookie;
