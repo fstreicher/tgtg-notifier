@@ -90,7 +90,7 @@ async function getPinFromMail(auth: OAuth2Client): Promise<string> {
     .then(res => {
       const message = res?.data.messages?.[0];
       if (!message) {
-        return Promise.reject('no mail found');
+        throw new Error('no mail found');
       }
 
       return gmail.users.messages.get({ id: message.id!, userId: 'me' })
