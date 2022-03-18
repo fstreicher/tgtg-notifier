@@ -9,8 +9,9 @@ declare global {
       PUSHOVER_KEY: string;
       TGTG_EMAIL: string;
       TGTG_USER_ORIGIN: string;
+      HEADER_UA: string;
     }
   }
 }
 
-export {}
+export { }
