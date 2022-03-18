@@ -1,9 +1,9 @@
-export interface LoginRequestResponse {
+export interface LoginRequestResponseData {
   polling_id: string,
   state: string;
 }
 
-export interface LoginResponse {
+export interface LoginResponseData {
   access_token: string;
   refresh_token: string;
   startup_data: {

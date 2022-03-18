@@ -85,7 +85,7 @@ export async function scrapeFavorites(): Promise<void> {
                   process.env.PUSHOVER_KEY,
                   target.notifyKey,
                   'TooGoodToGo',
-                  notificationItems.items.map(item => `${item.locationName}: ${item.numAvailable}`).join('\n')
+                  notificationItems.items.map(item => `${item.locationName}: <b>${item.numAvailable}</b>`).join('\n')
                 );
                 break;
             }
