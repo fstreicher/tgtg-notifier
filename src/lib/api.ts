@@ -49,6 +49,13 @@ export abstract class ApiWrapper {
       if ((err as AxiosError).response?.status === 429) {
         return Promise.reject((err as AxiosError).message);
       }
+      if ((err as AxiosError).response?.status === 403) {
+        const cookieHeader = (err as AxiosError).response?.headers['set-cookie']?.[0]?.split(';').shift();
+        if (cookieHeader) {
+          ApiWrapper.cookie = cookieHeader;
+        }
+        return Promise.reject((err as AxiosError).message);
+      }
       return Promise.reject(err);
     }
 
