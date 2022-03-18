@@ -7,7 +7,7 @@ import { AlertzyPriority, Credentials } from '../types';
 
 const tokenLifetime = 4 * 3600 * 1000;
 
-export async function checkCredentials(): Promise<Credentials> {
+export async function checkCredentials(): Promise<Credentials | void> {
   let credentials = null;
   if (!fs.existsSync('./credentials.json')) {
     console.info('No credentials found, logging in...');
@@ -28,7 +28,7 @@ export async function checkCredentials(): Promise<Credentials> {
   }
 }
 
-function login(): Promise<Credentials> {
+function login(): Promise<Credentials | void> {
   let credentials: Credentials;
   const email = process.env.TGTG_EMAIL || '';
   return ApiWrapper.login(email)
@@ -51,7 +51,7 @@ function login(): Promise<Credentials> {
     .catch(err => {
       console.error(err);
       alertError(err);
-      return Promise.reject();
+      return Promise.resolve();
     });
 }
 
