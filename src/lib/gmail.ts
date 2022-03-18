@@ -90,8 +90,7 @@ async function getPinFromMail(auth: OAuth2Client): Promise<string> {
     .then(res => {
       const message = res?.data.messages?.[0];
       if (!message) {
-        console.debug('no email found [1]');
-        return Promise.reject();
+        return Promise.reject('no mail found');
       }
 
       return gmail.users.messages.get({ id: message.id!, userId: 'me' })
@@ -113,7 +112,6 @@ async function getPinFromMail(auth: OAuth2Client): Promise<string> {
             gmail.users.messages.trash({ id: message.id!, userId: 'me' });
             return pin?.match(numberRegex)?.pop() ?? '';
           }
-          console.debug('no email found [2]');
           return '';
         });
 
