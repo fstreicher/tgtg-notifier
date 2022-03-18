@@ -13,13 +13,16 @@ export async function checkCredentials(): Promise<Credentials> {
     console.info('No credentials found, logging in...');
     return await login();
   } else {
-    credentials = JSON.parse(fs.readFileSync('./credentials.json', { encoding: 'utf-8' }));
+    credentials = JSON.parse(fs.readFileSync('./credentials.json', { encoding: 'utf-8' })) as Credentials;
     if (Date.now() - credentials.timestamp > tokenLifetime) {
       console.info('Credentials invalid, refreshing token...');
       return await refresh(credentials);
-    }
-    else {
+
+    } else {
       console.info('Credentials found & valid');
+      if (credentials.cookie) {
+        ApiWrapper.cookie = credentials.cookie;
+      }
       return credentials;
     }
   }
@@ -31,10 +34,15 @@ function login(): Promise<Credentials> {
   return ApiWrapper.login(email)
     .then(res => {
       credentials = {
-        user_id: res.startup_data.user.user_id,
-        access_token: res.access_token,
-        refresh_token: res.refresh_token,
+        user_id: res.data.startup_data.user.user_id,
+        access_token: res.data.access_token,
+        refresh_token: res.data.refresh_token,
         timestamp: Date.now()
+      }
+      const cookieHeader = res.headers['set-cookie']?.[0]?.split(';').shift();
+      if (cookieHeader) {
+        credentials.cookie = cookieHeader;
+        ApiWrapper.cookie = cookieHeader;
       }
       console.info('Logged in');
       fs.writeFileSync('./credentials.json', JSON.stringify(credentials, null, 2));
