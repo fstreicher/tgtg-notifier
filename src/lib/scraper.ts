@@ -27,16 +27,18 @@ export async function scrapeFavorites(): Promise<void> {
         const items: Array<Item> = res.data.items;
         fs.writeFileSync('./current-favorites.json', JSON.stringify(items, null, 2));
         let lastItems: ItemHistory = {};
-        if (!fs.existsSync('./lastItems/favorites.json')) {
-          items.forEach((item: Item) => lastItems[item.item.item_id] = item.items_available);
-        } else {
+        if (fs.existsSync('./lastItems/favorites.json')) {
           lastItems = JSON.parse(fs.readFileSync('./lastItems/favorites.json', { encoding: 'utf-8' }));
+        } else {
+          items.forEach((item: Item) => lastItems[item.item.item_id] = item.items_available);
         }
 
         const recipients: Array<Recipient> = jsonc.parse(fs.readFileSync('./recipients.jsonc', { encoding: 'utf-8' })) || [];
 
         recipients.forEach(target => {
+          console.info(`Checking items for ${target.name}`);
           const notificationItems: NotificationItems = { notify: false, items: [] };
+
           target.locations.forEach(location => {
             const currentItem = items.find(item => item.item.item_id === location);
             if (!currentItem) {
@@ -62,6 +64,9 @@ export async function scrapeFavorites(): Promise<void> {
             }
 
           });
+
+          console.info('\n');
+
           if (notificationItems.notify) {
             console.info(`    \u27f9  Sending notification about ${notificationItems.items.length} item(s) to ${target.name} via ${target.notifyBy}`);
             switch (target.notifyBy) {
