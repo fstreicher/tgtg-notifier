@@ -20,7 +20,7 @@ export async function scrapeFavorites(): Promise<void> {
       credentials.user_id,
       credentials.access_token,
       process.env.TGTG_USER_ORIGIN.split(',')[0],
-      process.env.TGTG_USER_ORIGIN.split(',')[0]
+      process.env.TGTG_USER_ORIGIN.split(',')[1]
 
     )
       .then(res => {
@@ -36,7 +36,7 @@ export async function scrapeFavorites(): Promise<void> {
         const recipients: Array<Recipient> = jsonc.parse(fs.readFileSync('./recipients.jsonc', { encoding: 'utf-8' })) || [];
 
         recipients.forEach(target => {
-          console.info(`Checking items for ${target.name}`);
+          console.info(`\nChecking items for ${target.name}`);
           const notificationItems: NotificationItems = { notify: false, items: [] };
 
           target.locations.forEach(location => {
@@ -64,8 +64,6 @@ export async function scrapeFavorites(): Promise<void> {
             }
 
           });
-
-          console.info('\n');
 
           if (notificationItems.notify) {
             console.info(`    \u27f9  Sending notification about ${notificationItems.items.length} item(s) to ${target.name} via ${target.notifyBy}`);
