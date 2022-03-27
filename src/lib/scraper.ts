@@ -65,7 +65,7 @@ export async function scrapeFavorites(): Promise<void> {
 
           });
 
-          if (notificationItems.notify) {
+          if (notificationItems.notify && !target.pauseNotifications) {
             console.info(`    \u27f9  Sending notification about ${notificationItems.items.length} item(s) to ${target.name} via ${target.notifyBy}`);
             switch (target.notifyBy) {
               case NOTIFY.EMAIL:

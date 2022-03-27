@@ -10,4 +10,5 @@ export interface Recipient {
   notifyBy: NOTIFY;
   notifyKey: string;
   locations: Array<string>;
+  pauseNotifications?: boolean;
 }
