@@ -4,6 +4,7 @@ import * as jsonc from 'jsonc-parser';
 import { AlertzyPriority, Item, ItemHistory, NotificationItems, NOTIFY, Recipient, TgtgError } from '../types';
 import { alertzy } from './alertzy';
 import { ApiWrapper } from './api';
+import { DataBaseConnector } from './db-connector';
 import { checkCredentials } from './login';
 import { transporter } from './nodemailer';
 import { pushover } from './pushover';
@@ -33,7 +34,8 @@ export async function scrapeFavorites(): Promise<void> {
           items.forEach((item: Item) => lastItems[item.item.item_id] = item.items_available);
         }
 
-        const recipients: Array<Recipient> = jsonc.parse(fs.readFileSync('./recipients.jsonc', { encoding: 'utf-8' })) || [];
+        // const recipientsFile: Array<Recipient> = jsonc.parse(fs.readFileSync('./recipients.jsonc', { encoding: 'utf-8' })) || [];
+        const recipients = DataBaseConnector.getRecipients();
 
         recipients.forEach(target => {
           console.info(`\nChecking items for ${target.name}`);

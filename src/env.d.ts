@@ -10,6 +10,9 @@ declare global {
       TGTG_EMAIL: string;
       TGTG_USER_ORIGIN: string;
       HEADER_UA: string;
+      DB_USER: string;
+      DB_PASSWORD: string;
+      PORT: string;
     }
   }
 }

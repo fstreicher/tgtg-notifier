@@ -1,28 +1,25 @@
 import { Router } from 'express';
-import * as fs from 'fs';
-import * as jsonc from 'jsonc-parser';
-import { Recipient } from '../types';
-
+import { DataBaseConnector } from '../lib/db-connector';
+import { Recipient } from '../lib/typeORM';
 
 const updateRouter = Router();
 
 updateRouter.post('/', (req, res, next) => {
   const headers = req.headers;
-  const userId = headers['x-user-id'];
-  if (!userId) {
+  const userNotifyKey = headers['x-user-id'];
+  if (!userNotifyKey) {
     res.status(400).send('USER_ID_MISSING');
     return;
   }
 
-  const recipients: Array<Recipient> = jsonc.parse(fs.readFileSync('./recipients.jsonc', { encoding: 'utf-8' })) || [];
-  const userIndex = recipients.findIndex(r => r.notifyKey === userId);
-  
-  if (userIndex === -1) {
+  const recipients: Array<Recipient> = DataBaseConnector.getRecipients();
+  const user = recipients.find(r => r.notify_key === userNotifyKey);
+
+  if (!user) {
     res.status(404).send('USER_NOT_FOUND');
     return;
   }
-  
-  const user = recipients[userIndex];
+
   const pauseNotifications = req.body?.pauseNotifications;
 
   if (typeof pauseNotifications !== 'boolean') {
@@ -30,13 +27,9 @@ updateRouter.post('/', (req, res, next) => {
     return;
   }
 
-  user.pauseNotifications = pauseNotifications;
-
-  recipients.splice(userIndex, 1, user);
-
-  fs.writeFileSync('recipients.jsonc',JSON.stringify(recipients, null, 2));
-
-  res.status(200).send();
+  DataBaseConnector.updateNotifcationStatus(user.id, pauseNotifications)
+    .then(() => res.status(200).send('SUCCESS'))
+    .catch(err => res.status(500).send(err));
 });
 
 export default updateRouter;

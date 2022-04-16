@@ -1,7 +1,7 @@
 import { scheduleCronJobs } from './lib/cron';
 import server from './server/index';
 
-const port = process.env.port ?? 3333;
+const port = process.env.PORT ? parseInt(process.env.PORT) : 3333;
 
 // scheduleCronJobs();
 
