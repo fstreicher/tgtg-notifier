@@ -29,8 +29,6 @@ export async function scrapeFavorites(): Promise<void> {
         let lastItems: ItemHistory = {};
         if (fs.existsSync('./lastItems/favorites.json')) {
           lastItems = JSON.parse(fs.readFileSync('./lastItems/favorites.json', { encoding: 'utf-8' }));
-        } else {
-          items.forEach((item: Item) => lastItems[item.item.item_id] = item.items_available);
         }
 
         const recipients: Array<Recipient> = jsonc.parse(fs.readFileSync('./recipients.jsonc', { encoding: 'utf-8' })) || [];
@@ -50,7 +48,7 @@ export async function scrapeFavorites(): Promise<void> {
                 notificationItems.items.push({ locationName: currentItem.display_name, numAvailable: currentItem.items_available });
                 console.info(` | ${currentItem.display_name} has ${currentItem.items_available} items available, adding to queue.`);
 
-                if (target.trigger === 'available' && lastItems[location] !== 0) {
+                if (target.trigger === 'available' && lastItems[location] > 0) {
                   console.info(`   \u27f9  skipping notification to ${target.name} with trigger: ${target.trigger}`);
                   return;
                 }

@@ -3,6 +3,6 @@
     "src"
   ],
   "ext": "ts",
-  "exec": "node build.js && node ./dist/app.js",
+  "exec": "node build.cjs && env NODE_ENV=dev node -r dotenv/config ./dist/app.js",
   "legacyWatch": true
 }

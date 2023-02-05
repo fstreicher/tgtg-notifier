@@ -103,12 +103,13 @@ export abstract class ApiWrapper {
         latitude: lat,
         longitude: long
       },
-      radius: 0,
+      radius: 5,
       favorites_only: true
     }
 
     return ApiWrapper.makeRequest(PATH.ITEM, data, headers);
   }
+
 
   private static getHeaders(): TgtgHeaders {
     const userAgent = process.env.HEADER_UA;
