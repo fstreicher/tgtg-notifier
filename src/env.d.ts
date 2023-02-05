@@ -1,6 +1,7 @@
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
+      NODE_ENV: string;
       GMAIL_USER: string;
       GMAIL_PW: string;
       NODEMAILER_SENDER: string;
