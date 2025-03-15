@@ -1,12 +1,32 @@
 import axios, { AxiosRequestConfig } from 'axios';
+import { AlertzyPriority, type TAlertzyPriority } from '../types';
 
-import { AlertzyPriority } from '../types';
+export function alertzy(
+  key: string,
+  title: string,
+  message: string,
+  group?: string,
+  priority: TAlertzyPriority = AlertzyPriority.NORMAL
+): void {
 
-export function alertzy(key: string, title: string, message: string, prio: AlertzyPriority = AlertzyPriority.NORMAL): void {
+  const paramObj = {
+    accountKey: key,
+    title,
+    message,
+    priority,
+    group
+  };
+
+  // Filter out undefined values
+  const params = new URLSearchParams(
+    Object.entries(paramObj)
+      .filter(([_, value]) => value !== undefined)
+      .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})
+  );
 
   const options: AxiosRequestConfig = {
     baseURL: 'https://alertzy.app',
-    url: `/send?accountKey=${encodeURIComponent(key)}&title=${encodeURIComponent(title)}&message=${encodeURIComponent(message)}&priority=${prio}`,
+    url: `/send?${params.toString()}`,
     method: 'POST'
   };
 

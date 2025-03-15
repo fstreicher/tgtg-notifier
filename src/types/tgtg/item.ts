@@ -1,5 +1,12 @@
-export interface ItemResponse {
-  items: Array<Item>;
+export interface DiscoverResponse {
+  mobile_bucket: {
+    filler_type: string;
+    title: string;
+    description: string;
+    items: Array<Item>;
+    bucket_type: string;
+    display_type: string;
+  };
 }
 
 export interface Item {
@@ -17,35 +24,50 @@ export interface Item {
   favorite: boolean;
   in_sales_window: boolean;
   new_item: boolean;
+  item_type: string;
+  matches_filters: boolean;
+  item_tags: Array<ItemTag>;
 }
 
 interface NestedItem {
   item_id: string;
-  price: Money;
-  sales_taxes: Array<unknown>;
+  sales_taxes: Array<Tax>;
   tax_amount: Money;
   price_excluding_taxes: Money;
   price_including_taxes: Money;
   value_excluding_taxes: Money;
   value_including_taxes: Money;
-  taxation_policy: 'PRICE_INCLUDES_TAXES';
+  taxation_policy: string;
   show_sales_taxes: boolean;
+  item_price: Money;
+  item_value: Money;
+  sold_out_at_dynamic_item_price: Money;
   cover_picture: Image;
   logo_picture: Image;
   name: string;
   description: string;
+  subtitle: string;
+  food_handling_instructions: string;
   can_user_supply_packaging: boolean;
   packaging_option: PackagingOption;
-  diet_categories: Array<DietCategories>;
-  item_category: ItemCategories;
-  badges: Array<Badge>;
-  positive_rating_reasons: Array<RatingReason>;
-  favorite_count: number;
+  collection_info: string;
+  diet_categories: Array<DietCategory>;
+  item_category: ItemCategory;
   buffet: boolean;
+  positive_rating_reasons: Array<RatingReason>;
+  average_overall_rating: AverageRating;
+  price_info: PriceInfo;
+  favorite_count: number;
+}
+
+interface Tax {
+  tax_description: string;
+  tax_percentage: number;
 }
 
 interface Money {
-  code: 'EUR';
+  /** eg. `EUR` */
+  code: string;
   minor_units: number;
   decimals: number;
 }
@@ -55,19 +77,11 @@ interface Image {
   current_url: string;
 }
 
-enum PackagingOption {
-  'BAG_ALLOWED',
-  'MUST_BRING_BAG'
-}
+type PackagingOption = 'BAG_ALLOWED' | 'MUST_BRING_BAG';
 
-enum DietCategories {
-  'VEGETARIAN'
-}
+type DietCategory = 'VEGETARIAN';
 
-enum ItemCategories {
-  'BAKED_GOODS',
-  'GROCERIES'
-}
+type ItemCategory = 'BAKED_GOODS' | 'GROCERIES';
 
 interface Badge {
   badge_type: BadgeType;
@@ -82,17 +96,30 @@ enum BadgeType {
   'OVERALL_RATING_TRUST_SCORE'
 }
 
-enum RatingGroup {
-  'LOVED'
+type RatingGroup = 'LOVED';
+
+type RatingReason =
+  | 'POSITIVE_FEEDBACK_DELICIOUS_FOOD'
+  | 'POSITIVE_FEEDBACK_FRIENDLY_STAFF'
+  | 'POSITIVE_FEEDBACK_GREAT_QUANTITY'
+  | 'POSITIVE_FEEDBACK_GREAT_VALUE'
+  | 'POSITIVE_FEEDBACK_GREAT_VARIETY'
+  | 'POSITIVE_FEEDBACK_QUICK_COLLECTION';
+
+interface AverageRating {
+  average_overall_rating: number;
+  rating_count: number;
+  month_count: number;
+  average_collection_experience_rating: number;
+  average_food_quality_rating: number;
+  average_contents_variety_rating: number;
+  average_food_quantity_rating: number;
 }
 
-enum RatingReason {
-  'POSITIVE_FEEDBACK_DELICIOUS_FOOD',
-  'POSITIVE_FEEDBACK_FRIENDLY_STAFF',
-  'POSITIVE_FEEDBACK_GREAT_QUANTITY',
-  'POSITIVE_FEEDBACK_GREAT_VALUE',
-  'POSITIVE_FEEDBACK_GREAT_VARIETY',
-  'POSITIVE_FEEDBACK_QUICK_COLLECTION'
+interface PriceInfo {
+  type: string;
+  is_recurring: boolean;
+  is_personal: boolean;
 }
 
 interface Location {
@@ -123,7 +150,13 @@ interface Store {
   store_time_zone: string;
   hidden: boolean;
   favorite_count: number;
-  we_care: boolean;
   distance: number;
   cover_picture: Image;
+  is_manufacturer: boolean;
+}
+
+interface ItemTag {
+  id: string;
+  short_text: string;
+  long_text: string;
 }

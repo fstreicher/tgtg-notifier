@@ -115,9 +115,5 @@ async function getPinFromMail(auth: OAuth2Client): Promise<string> {
           return '';
         });
 
-    })
-    .catch(err => {
-      console.error(err);
-      return '';
     });
 }

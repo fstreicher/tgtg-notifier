@@ -1,16 +1,22 @@
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios';
-
-import { ItemResponse, LoginPayload, LoginRequestResponseData, LoginResponseData, RefreshResponse, TgtgHeaders } from '../types';
+import {
+  DiscoverResponse,
+  LoginPayload,
+  LoginRequestResponseData,
+  LoginResponseData,
+  RefreshResponse,
+  TgtgHeaders
+} from '../types';
 import { getLoginPin } from './gmail';
 
 const MAX_POLLING_TRIES = 24; // 24 * POLLING_WAIT_TIME = 2 minutes
 const POLLING_WAIT_TIME = 5000;
 const BASE_URL = 'https://apptoogoodtogo.com';
 const PATH = {
-  LOGIN: '/api/auth/v3/authByEmail/',
-  PIN: '/api/auth/v3/authByRequestPin/',
-  REFRESH: '/api/auth/v3/token/refresh/',
-  ITEM: '/api/item/v7/'
+  LOGIN: '/api/auth/v5/authByEmail/',
+  PIN: '/api/auth/v5/authByRequestPin/',
+  REFRESH: '/api/auth/v5/token/refresh/',
+  DISCOVER: '/api/discover/v1/bucket',
 };
 
 
@@ -69,7 +75,10 @@ export abstract class ApiWrapper {
               console.debug(`found pin: ${res}`);
               resolve(res);
             })
-            .catch((err) => console.debug(`failed to get code at try ${retryCounter}`, err));
+            .catch((err) => {
+              console.error(err.message);
+              console.debug(`failed to get code at try ${retryCounter}`, err);
+            });
         },
         POLLING_WAIT_TIME
       ));
@@ -93,21 +102,26 @@ export abstract class ApiWrapper {
   }
 
 
-  public static getFavorites(userId: string, authToken: string, lat: string, long: string): AxiosPromise<ItemResponse> {
+  public static getFavorites(authToken: string, latitude: string, longitude: string): AxiosPromise<DiscoverResponse> {
     const headers = {
       'Authorization': `Bearer ${authToken}`
     };
     const data = {
-      user_id: userId,
-      origin: {
-        latitude: lat,
-        longitude: long
-      },
       radius: 5,
-      favorites_only: true
+      paging: {
+        page: 0,
+        size: 50
+      },
+      origin: {
+        latitude,
+        longitude
+      },
+      bucket: {
+        filler_type: 'Favorites'
+      }
     }
 
-    return ApiWrapper.makeRequest(PATH.ITEM, data, headers);
+    return ApiWrapper.makeRequest(PATH.DISCOVER, data, headers);
   }
 
 

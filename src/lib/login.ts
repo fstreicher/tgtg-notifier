@@ -5,7 +5,7 @@ import { ApiWrapper } from './api';
 import { AlertzyPriority, Credentials } from '../types';
 
 
-const tokenLifetime = 4 * 3600 * 1000;
+const tokenLifetime = 48 * 3600 * 1000;
 
 export async function checkCredentials(): Promise<Credentials | void> {
   let credentials = null;
@@ -34,17 +34,16 @@ function login(): Promise<Credentials | void> {
   return ApiWrapper.login(email)
     .then(res => {
       credentials = {
-        user_id: res.data.startup_data.user.user_id,
         access_token: res.data.access_token,
         refresh_token: res.data.refresh_token,
         timestamp: Date.now()
-      }
+      };
       const cookieHeader = res.headers['set-cookie']?.[0]?.split(';').shift();
       if (cookieHeader) {
         credentials.cookie = cookieHeader;
         ApiWrapper.cookie = cookieHeader;
       }
-      console.info('Logged in');
+      console.info('Received tokens');
       fs.writeFileSync('./credentials.json', JSON.stringify(credentials, null, 2));
       return Promise.resolve(credentials);
     })
@@ -54,7 +53,6 @@ function login(): Promise<Credentials | void> {
       return Promise.resolve();
     });
 }
-
 
 function refresh(credentials: Credentials): Promise<Credentials> {
   return ApiWrapper.refreshToken(credentials.refresh_token)
@@ -81,6 +79,7 @@ function alertError(err: Error) {
       process.env.ALERTZY_KEY,
       'LoginError',
       err.message,
+      'TGTG-error',
       AlertzyPriority.CRITICAL
     );
   }

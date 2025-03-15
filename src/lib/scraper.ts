@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as jsonc from 'jsonc-parser';
-
 import { AlertzyPriority, Item, ItemHistory, NotificationItems, NOTIFY, Recipient, TgtgError } from '../types';
 import { alertzy } from './alertzy';
 import { ApiWrapper } from './api';
@@ -17,14 +16,13 @@ export async function scrapeFavorites(): Promise<void> {
   if (credentials && process.env.TGTG_USER_ORIGIN) {
 
     ApiWrapper.getFavorites(
-      credentials.user_id,
       credentials.access_token,
       process.env.TGTG_USER_ORIGIN.split(',')[0],
       process.env.TGTG_USER_ORIGIN.split(',')[1]
 
     )
       .then(res => {
-        const items: Array<Item> = res.data.items;
+        const items: Array<Item> = res.data.mobile_bucket.items;
         fs.writeFileSync('./current-favorites.json', JSON.stringify(items, null, 2));
         let lastItems: ItemHistory = {};
         if (fs.existsSync('./lastItems/favorites.json')) {
@@ -78,7 +76,8 @@ export async function scrapeFavorites(): Promise<void> {
                 alertzy(
                   target.notifyKey,
                   'TooGoodToGo',
-                  notificationItems.items.map(item => `${item.locationName}: ${item.numAvailable}`).join('\n')
+                  notificationItems.items.map(item => `${item.locationName}: ${item.numAvailable}`).join('\n'),
+                  'TGTG-notification'
                 );
                 break;
               case NOTIFY.PUSHOVER:
@@ -112,6 +111,7 @@ function sendError(err: TgtgError) {
         process.env.ALERTZY_KEY,
         `TGTG Notifier Error${err.response?.status ? ': ' + err.response.status : ''}`,
         `${err.response.data.error}: ${err.message}`,
+        'TGTG-error',
         AlertzyPriority.CRITICAL
       );
     } else {
@@ -135,6 +135,7 @@ function notifyMissingItem(err: Error) {
         process.env.ALERTZY_KEY,
         'TGTG Notifier Warning: Missing Item',
         err.message,
+        'TGTG-missing-item',
         AlertzyPriority.HIGH
       );
     } else {
